@@ -29,6 +29,32 @@ PDF_FONTS = {           # PyMuPDF built-in font names
     "Calibri":         "helv",
 }
 
+# UI text labels for consistent UI strings
+UI_TEXT = {
+    "app_title": "PDF Editor Pro",
+    "mode_view": "Mode: View",
+    "mode_text": "Mode: Click to Add Text",
+    "mode_edit": "Mode: Click Text to Edit",
+    "mode_image": "Mode: Click to Insert Image",
+    "mode_redact": "Mode: Drag to Redact",
+    "grp_file": "File",
+    "btn_open": "Open PDF",
+    "btn_save": "Save PDF",
+    "grp_tools": "Tools",
+    "btn_text": "Add Text",
+    "btn_edit": "Edit Existing",
+    "btn_image": "Insert Image",
+    "btn_redact": "Remove / Redact",
+    "grp_sig": "Signatures",
+    "btn_sig": "Signature Manager",
+    "grp_pages": "Pages",
+    "btn_reorder": "Reorder Pages",
+    "btn_undo": "Undo",
+    "btn_redo": "Redo",
+    "footer": "v1.0 • Created by Dickson Chin © 2026",
+}
+
+
 def ensure_sigs_dir():
     os.makedirs(SIGS_DIR, exist_ok=True)
     if not os.path.exists(SIGS_META):
@@ -350,8 +376,9 @@ class TextFormatBar(ctk.CTkFrame):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Helpers
+# # Helpers
 # ─────────────────────────────────────────────────────────────────────────────
+
 def tk_font_tuple(fmt, zoom=1.0):
     family = fmt.get("family", "Arial")
     size   = max(6, int(fmt.get("size", 12) * zoom))
@@ -409,30 +436,30 @@ class PDFEditor(ctk.CTk):
         sb.grid_rowconfigure(14, weight=1)
         self.sidebar = sb
 
-        ctk.CTkLabel(sb, text="PDF Editor Pro",
+        ctk.CTkLabel(sb, text=UI_TEXT["app_title"],
                      font=ctk.CTkFont(size=18, weight="bold")).grid(
             row=0, column=0, padx=20, pady=(22,4))
-        self.lbl_mode = ctk.CTkLabel(sb, text="Mode: View",
+        self.lbl_mode = ctk.CTkLabel(sb, text=UI_TEXT["mode_view"],
                                      font=ctk.CTkFont(size=11),
                                      text_color="#1f6aa5")
         self.lbl_mode.grid(row=1, column=0, padx=20, pady=(0,12))
 
-        ctk.CTkLabel(sb, text="File",
+        ctk.CTkLabel(sb, text=UI_TEXT["grp_file"],
                      font=ctk.CTkFont(weight="bold")).grid(row=2, column=0, padx=20, pady=(4,2))
-        ctk.CTkButton(sb, text="Open PDF", command=self.open_pdf).grid(
+        ctk.CTkButton(sb, text=UI_TEXT["btn_open"], command=self.open_pdf).grid(
             row=3, column=0, padx=20, pady=4)
-        ctk.CTkButton(sb, text="Save PDF", fg_color="#28a745",
+        ctk.CTkButton(sb, text=UI_TEXT["btn_save"], fg_color="#28a745",
                       hover_color="#218838", command=self.save_pdf).grid(
             row=4, column=0, padx=20, pady=4)
 
-        ctk.CTkLabel(sb, text="Tools",
+        ctk.CTkLabel(sb, text=UI_TEXT["grp_tools"],
                      font=ctk.CTkFont(weight="bold")).grid(row=5, column=0, padx=20, pady=(14,2))
         self._tool_btns = {}
         for label, mode, r in [
-            ("Add Text",        'text',      6),
-            ("Edit Existing",   'edit_text', 7),
-            ("Insert Image",    'image',     8),
-            ("Remove / Redact", 'redact',    9),
+            (UI_TEXT["btn_text"],   'text',      6),
+            (UI_TEXT["btn_edit"],   'edit_text', 7),
+            (UI_TEXT["btn_image"],  'image',     8),
+            (UI_TEXT["btn_redact"], 'redact',    9),
         ]:
             kw = dict(fg_color="#dc3545", hover_color="#c82333") if mode == 'redact' else {}
             btn = ctk.CTkButton(sb, text=label,
@@ -440,29 +467,33 @@ class PDFEditor(ctk.CTk):
             btn.grid(row=r, column=0, padx=20, pady=4)
             self._tool_btns[mode] = btn
 
-        ctk.CTkLabel(sb, text="Signatures",
+        ctk.CTkLabel(sb, text=UI_TEXT["grp_sig"],
                      font=ctk.CTkFont(weight="bold")).grid(row=10, column=0, padx=20, pady=(14,2))
-        ctk.CTkButton(sb, text="Signature Manager",
+        ctk.CTkButton(sb, text=UI_TEXT["btn_sig"],
                       command=self.open_sig_manager).grid(row=11, column=0, padx=20, pady=4)
 
-        ctk.CTkLabel(sb, text="Pages",
+        ctk.CTkLabel(sb, text=UI_TEXT["grp_pages"],
                      font=ctk.CTkFont(weight="bold")).grid(row=12, column=0, padx=20, pady=(14,2))
-        ctk.CTkButton(sb, text="Reorder Pages",
+        ctk.CTkButton(sb, text=UI_TEXT["btn_reorder"],
                       command=self.open_page_manager).grid(row=13, column=0, padx=20, pady=4)
 
         # Commit Objects button removed for auto-commit workflow
         uf = ctk.CTkFrame(sb, fg_color="transparent")
         uf.grid(row=16, column=0, padx=20, pady=4)
-        self.btn_undo = ctk.CTkButton(uf, text="Undo", width=60,
+        self.btn_undo = ctk.CTkButton(uf, text=UI_TEXT["btn_undo"], width=60,
                                       state="disabled", command=self.undo)
         self.btn_undo.pack(side="left", padx=2)
-        self.btn_redo = ctk.CTkButton(uf, text="Redo", width=60,
+        self.btn_redo = ctk.CTkButton(uf, text=UI_TEXT["btn_redo"], width=60,
                                       state="disabled", command=self.redo)
         self.btn_redo.pack(side="left", padx=2)
         ctk.CTkLabel(sb,
                      text="Drag corners to resize\nDrag center to move\nEsc = deselect",
                      font=ctk.CTkFont(size=10), text_color="gray").grid(
-            row=17, column=0, pady=(10,16))
+            row=17, column=0, pady=(10,10))
+        ctk.CTkLabel(sb,
+                     text=UI_TEXT["footer"],
+                     font=ctk.CTkFont(size=9), text_color="gray50").grid(
+            row=18, column=0, pady=(0,16))
 
         # Main area
         mf = ctk.CTkFrame(self, corner_radius=0)
@@ -535,13 +566,14 @@ class PDFEditor(ctk.CTk):
     def set_mode(self, mode):
         self._commit_inline()
         self.current_mode = mode
-        labels = {
-            'text':      "Mode: Click to Add Text",
-            'edit_text': "Mode: Click Text to Edit",
-            'image':     "Mode: Click to Insert Image",
-            'redact':    "Mode: Drag to Redact",
+        mode_labels = {
+            None: UI_TEXT["mode_view"],
+            'text': UI_TEXT["mode_text"],
+            'edit_text': UI_TEXT["mode_edit"],
+            'image': UI_TEXT["mode_image"],
+            'redact': UI_TEXT["mode_redact"],
         }
-        self.lbl_mode.configure(text=labels.get(mode, "Mode: View / Select"))
+        self.lbl_mode.configure(text=mode_labels.get(mode, UI_TEXT["mode_view"]))
         for m, btn in self._tool_btns.items():
             btn.configure(border_width=2 if m == mode else 0,
                           border_color="#ffffff")
@@ -636,8 +668,14 @@ class PDFEditor(ctk.CTk):
             pil = Image.open(filepath)
             c_x = self.canvas.canvasx(220)
             c_y = self.canvas.canvasy(220)
-            item = self._make_image_item(c_x, c_y, filepath, pil)
+            
+            # Commit any existing items BEFORE making the new one
             self.deselect()
+            
+            item = self._make_image_item(c_x, c_y, filepath, pil)
+            
+            if self.selected_item:
+                self._remove_selection(self.selected_item)
             self.selected_item = item
             self._draw_selection(item)
             self.set_mode(None)
@@ -679,9 +717,15 @@ class PDFEditor(ctk.CTk):
                                            outline=SEL_COLOR, width=2,
                                            dash=(4,3), tags="selection")
         item['box_id'] = box
-        corners = [(x,y),(x+w,y),(x+w,y+h),(x,y+h)]
+        
+        handles_map = {
+            'resize_NW': (x, y), 'resize_NE': (x+w, y),
+            'resize_SE': (x+w, y+h), 'resize_SW': (x, y+h),
+            'resize_N': (x+w/2, y), 'resize_S': (x+w/2, y+h),
+            'resize_E': (x+w, y+h/2), 'resize_W': (x, y+h/2),
+        }
         handles = []
-        for (cx,cy) in corners:
+        for mode, (cx, cy) in handles_map.items():
             hid = self.canvas.create_rectangle(
                 cx-hs,cy-hs,cx+hs,cy+hs,
                 fill=HANDLE_COLOR, outline=SEL_COLOR, width=2,
@@ -698,8 +742,13 @@ class PDFEditor(ctk.CTk):
     def _hit_handle(self, cx, cy, item):
         hs = HANDLE_SIZE+6
         x,y,w,h = item['x'],item['y'],item['w'],item['h']
-        for mode,(px,py) in {'resize_NW':(x,y),'resize_NE':(x+w,y),
-                              'resize_SE':(x+w,y+h),'resize_SW':(x,y+h)}.items():
+        handles_map = {
+            'resize_NW': (x, y), 'resize_NE': (x+w, y),
+            'resize_SE': (x+w, y+h), 'resize_SW': (x, y+h),
+            'resize_N': (x+w/2, y), 'resize_S': (x+w/2, y+h),
+            'resize_E': (x+w, y+h/2), 'resize_W': (x, y+h/2),
+        }
+        for mode,(px,py) in handles_map.items():
             if abs(cx-px)<=hs and abs(cy-py)<=hs: return mode
         return None
 
@@ -792,7 +841,7 @@ class PDFEditor(ctk.CTk):
         # Automatically exit "Add Text" mode after adding one
         if self.current_mode == 'text':
             self.current_mode = None
-            self.lbl_mode.configure(text="Mode: View / Select")
+            self.lbl_mode.configure(text=UI_TEXT["mode_view"])
             for m, btn in self._tool_btns.items():
                 btn.configure(border_width=0)
                 
@@ -817,10 +866,11 @@ class PDFEditor(ctk.CTk):
 
     def _make_image_item(self, c_x, c_y, filepath, pil_img=None):
         if pil_img is None: pil_img = Image.open(filepath)
-        ow,oh   = pil_img.size
-        ratio   = min(180/max(ow,1), 180/max(oh,1), 1.0)
-        dw = max(10, int(ow*ratio*self.zoom))
-        dh = max(10, int(oh*ratio*self.zoom))
+        ow, oh  = pil_img.size
+        # Cap at a large reasonable maximum instead of shrinking small signatures
+        ratio = min(800/max(ow,1), 800/max(oh,1), 1.0)
+        dw = max(10, int(ow * ratio * self.zoom))
+        dh = max(10, int(oh * ratio * self.zoom))
         resized = pil_img.resize((dw,dh), Image.Resampling.LANCZOS)
         tk_img  = ImageTk.PhotoImage(resized)
         iid = self.canvas.create_image(c_x,c_y, anchor=tk.NW,
@@ -901,7 +951,8 @@ class PDFEditor(ctk.CTk):
                 ph = it['h'] / self.zoom
                 page.insert_image(
                     fitz.Rect(px, py, px + pw, py + ph),
-                    filename=it['val'])
+                    filename=it['val'],
+                    keep_proportion=False)
         self.save_state(); self.render_page()
 
     # ── Canvas events ─────────────────────────────────────────────────────────
@@ -1037,37 +1088,79 @@ class PDFEditor(ctk.CTk):
             it['y'] = self.drag_item_y + dy
             self.canvas.coords(it['id'], it['x'], it['y'])
 
-        elif self.drag_mode == 'resize_SE':
-            self._apply_resize(it, it['x'], it['y'],
-                               max(10, self.drag_item_w+dx),
-                               max(10, self.drag_item_h+dy))
-        elif self.drag_mode == 'resize_NW':
-            nw = max(10, self.drag_item_w-dx)
-            nh = max(10, self.drag_item_h-dy)
-            self._apply_resize(it,
-                               self.drag_item_x+(self.drag_item_w-nw),
-                               self.drag_item_y+(self.drag_item_h-nh), nw, nh)
-        elif self.drag_mode == 'resize_NE':
-            nw = max(10, self.drag_item_w+dx)
-            nh = max(10, self.drag_item_h-dy)
-            self._apply_resize(it, it['x'],
-                               self.drag_item_y+(self.drag_item_h-nh), nw, nh)
-        elif self.drag_mode == 'resize_SW':
-            nw = max(10, self.drag_item_w-dx)
-            nh = max(10, self.drag_item_h+dy)
-            self._apply_resize(it,
-                               self.drag_item_x+(self.drag_item_w-nw),
-                               it['y'], nw, nh)
+        elif self.drag_mode.startswith('resize_'):
+            nw, nh = max(10, self.drag_item_w), max(10, self.drag_item_h)
+            nx, ny = self.drag_item_x, self.drag_item_y
+
+            # Handle edge resizes first (free stretching)
+            if self.drag_mode == 'resize_E':
+                nw = max(10, self.drag_item_w + dx)
+            elif self.drag_mode == 'resize_W':
+                nw = max(10, self.drag_item_w - dx)
+                nx = self.drag_item_x + (self.drag_item_w - nw)
+            elif self.drag_mode == 'resize_S':
+                nh = max(10, self.drag_item_h + dy)
+            elif self.drag_mode == 'resize_N':
+                nh = max(10, self.drag_item_h - dy)
+                ny = self.drag_item_y + (self.drag_item_h - nh)
+            else:
+                # Corner resizes
+                if it['type'] == 'image':
+                    aspect = self.drag_item_w / max(1, self.drag_item_h)
+                    if self.drag_mode == 'resize_SE':
+                        nw_from_x = self.drag_item_w + dx
+                        nh_from_y = self.drag_item_h + dy
+                    elif self.drag_mode == 'resize_SW':
+                        nw_from_x = self.drag_item_w - dx
+                        nh_from_y = self.drag_item_h + dy
+                    elif self.drag_mode == 'resize_NE':
+                        nw_from_x = self.drag_item_w + dx
+                        nh_from_y = self.drag_item_h - dy
+                    elif self.drag_mode == 'resize_NW':
+                        nw_from_x = self.drag_item_w - dx
+                        nh_from_y = self.drag_item_h - dy
+
+                    # Use the larger drag magnitude to drive the resize
+                    if abs(dx) > abs(dy):
+                        nw = max(10, nw_from_x)
+                        nh = max(10, nw / aspect)
+                    else:
+                        nh = max(10, nh_from_y)
+                        nw = max(10, nh * aspect)
+                else:
+                    # Free width/height for text corners
+                    if self.drag_mode == 'resize_SE':
+                        nw = max(10, self.drag_item_w + dx)
+                        nh = max(10, self.drag_item_h + dy)
+                    elif self.drag_mode == 'resize_SW':
+                        nw = max(10, self.drag_item_w - dx)
+                        nh = max(10, self.drag_item_h + dy)
+                    elif self.drag_mode == 'resize_NE':
+                        nw = max(10, self.drag_item_w + dx)
+                        nh = max(10, self.drag_item_h - dy)
+                    elif self.drag_mode == 'resize_NW':
+                        nw = max(10, self.drag_item_w - dx)
+                        nh = max(10, self.drag_item_h - dy)
+
+                # Adjust x, y for anchor
+                if self.drag_mode in ('resize_NW', 'resize_SW'):
+                    nx = self.drag_item_x + (self.drag_item_w - nw)
+                if self.drag_mode in ('resize_NW', 'resize_NE'):
+                    ny = self.drag_item_y + (self.drag_item_h - nh)
+
+            self._apply_resize(it, nx, ny, nw, nh)
         self._draw_selection(it)
 
     def _apply_resize(self, item, nx, ny, nw, nh):
         item['x'], item['y'], item['w'], item['h'] = nx, ny, nw, nh
+        # Refresh the item – for both images and text we simply redraw with new dimensions.
         if item['type'] == 'image':
             self._refresh_image(item)
         elif item['type'] == 'text':
             # For text: only change the wrap-width of the box.
             # Font size is controlled exclusively by the format bar.
             self._refresh_text(item)
+
 
     def on_release(self, event):
         if not self.doc: return
@@ -1084,7 +1177,8 @@ class PDFEditor(ctk.CTk):
             page.apply_redactions()
             self.canvas.delete(self.redact_rect_id)
             self.redact_rect_id = None
-            self.save_state(); self.render_page(); self.set_mode(None)
+            self.save_state()
+            self.render_page()
             return
 
         if self.selected_item and self.drag_mode:
